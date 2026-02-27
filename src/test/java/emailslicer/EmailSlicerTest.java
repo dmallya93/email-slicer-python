@@ -9,9 +9,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EmailSlicerTest {
+
+    private static final String LS = System.lineSeparator();
+    private static final String PROMPT = "Enter your email: ";
 
     private PrintStream originalOut;
     private InputStream originalIn;
@@ -41,47 +44,83 @@ class EmailSlicerTest {
     void validEmail_printsUsernameAndDomain() {
         String output = runWithInput("avimax37@gmail.com\n");
 
-        assertTrue(output.contains("Enter your email: "));
-        assertTrue(output.contains("Your username is:  avimax37"));
-        assertTrue(output.contains("Your domain is:  gmail.com"));
+        String expected = PROMPT
+                + "Your username is:  avimax37" + LS
+                + "Your domain is:  gmail.com" + LS;
+        assertEquals(expected, output);
     }
 
     @Test
     void invalidEmail_printsError() {
         String output = runWithInput("invalidemail\n");
 
-        assertTrue(output.contains("Enter your email: "));
-        assertTrue(output.contains("Please enter a valid Email Id."));
+        String expected = PROMPT + "Please enter a valid Email Id." + LS;
+        assertEquals(expected, output);
     }
 
     @Test
     void emailWithWhitespace_isTrimmedBeforeParsing() {
         String output = runWithInput("   user@example.com  \n");
 
-        assertTrue(output.contains("Your username is:  user"));
-        assertTrue(output.contains("Your domain is:  example.com"));
+        String expected = PROMPT
+                + "Your username is:  user" + LS
+                + "Your domain is:  example.com" + LS;
+        assertEquals(expected, output);
     }
 
     @Test
     void emailWithMultipleAtSymbols_splitsOnFirstAt() {
         String output = runWithInput("user@sub@example.com\n");
 
-        assertTrue(output.contains("Your username is:  user"));
-        assertTrue(output.contains("Your domain is:  sub@example.com"));
+        String expected = PROMPT
+                + "Your username is:  user" + LS
+                + "Your domain is:  sub@example.com" + LS;
+        assertEquals(expected, output);
     }
 
     @Test
     void emptyInput_printsError() {
         String output = runWithInput("\n");
 
-        assertTrue(output.contains("Please enter a valid Email Id."));
+        String expected = PROMPT + "Please enter a valid Email Id." + LS;
+        assertEquals(expected, output);
     }
 
     @Test
     void atAtStart_printsEmptyUsername() {
         String output = runWithInput("@domain.com\n");
 
-        assertTrue(output.contains("Your username is:  "));
-        assertTrue(output.contains("Your domain is:  domain.com"));
+        String expected = PROMPT
+                + "Your username is:  " + LS
+                + "Your domain is:  domain.com" + LS;
+        assertEquals(expected, output);
+    }
+
+    @Test
+    void onlyWhitespace_printsError() {
+        String output = runWithInput("   \n");
+
+        String expected = PROMPT + "Please enter a valid Email Id." + LS;
+        assertEquals(expected, output);
+    }
+
+    @Test
+    void atAtEnd_printsEmptyDomain() {
+        String output = runWithInput("user@\n");
+
+        String expected = PROMPT
+                + "Your username is:  user" + LS
+                + "Your domain is:  " + LS;
+        assertEquals(expected, output);
+    }
+
+    @Test
+    void onlyAtSymbol_printsEmptyUsernameAndDomain() {
+        String output = runWithInput("@\n");
+
+        String expected = PROMPT
+                + "Your username is:  " + LS
+                + "Your domain is:  " + LS;
+        assertEquals(expected, output);
     }
 }
