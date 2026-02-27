@@ -12,6 +12,10 @@ public class EmailSlicer {
         final String input = scanner.nextLine();
         final String email = input == null ? "" : input.trim();
 
+        sliceAndPrint(email);
+    }
+
+    static void sliceAndPrint(String email) {
         final int atIndex = email.indexOf(AT_SYMBOL);
         if (atIndex == -1) {
             System.out.println("Please enter a valid Email Id.");
