@@ -3,6 +3,8 @@ package emailslicer;
 import java.util.Scanner;
 
 public class EmailSlicer {
+    private static final String AT_SYMBOL = "@";
+
     public static void main(String[] args) {
         final Scanner scanner = new Scanner(System.in);
         System.out.print("Enter your email: ");
@@ -10,7 +12,7 @@ public class EmailSlicer {
         final String input = scanner.nextLine();
         final String email = input == null ? "" : input.trim();
 
-        final int atIndex = email.indexOf("@");
+        final int atIndex = email.indexOf(AT_SYMBOL);
         if (atIndex == -1) {
             System.out.println("Please enter a valid Email Id.");
             return;
